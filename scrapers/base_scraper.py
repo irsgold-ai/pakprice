@@ -1,0 +1,38 @@
+import requests,time,random,sys,os
+sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
+class BaseScraper:
+    def __init__(self,site_key):
+            self.site_key=site_key
+                    self.site_info=config.SITE_INFO.get(site_key,{})
+                            self.site_name=self.site_info.get('name',site_key)
+                                    self.base_url=self.site_info.get('base_url','')
+                                            self.search_url=self.site_info.get('search_url','')
+                                                    self.session=requests.Session()
+                                                            self.session.headers.update(config.REQUEST_HEADERS)
+                                                                def fetch_page(self,url):
+                                                                        for attempt in range(config.MAX_RETRIES+1):
+                                                                                    try:
+                                                                                                    if attempt>0:time.sleep(config.DELAY_BETWEEN_REQUESTS+random.uniform(0.5,1.5))
+                                                                                                                    r=self.session.get(url,timeout=config.REQUEST_TIMEOUT,allow_redirects=True)
+                                                                                                                                    if r.status_code==200:return r.text
+                                                                                                                                                    elif r.status_code in[403,429]:return None
+                                                                                                                                                                except Exception as e:
+                                                                                                                                                                                print(f"{self.site_name} error:{e}")
+                                                                                                                                                                                        return None
+                                                                                                                                                                                            def clean_price(self,price_text):
+                                                                                                                                                                                                    if not price_text:return 0.0
+                                                                                                                                                                                                            try:
+                                                                                                                                                                                                                        cleaned=''.join(c for c in str(price_text) if c.isdigit() or c=='.')
+                                                                                                                                                                                                                                    return float(cleaned) if cleaned else 0.0
+                                                                                                                                                                                                                                            except:return 0.0
+                                                                                                                                                                                                                                                def clean_name(self,name_text):
+                                                                                                                                                                                                                                                        if not name_text:return ""
+                                                                                                                                                                                                                                                                cleaned=str(name_text).strip()
+                                                                                                                                                                                                                                                                        while "  " in cleaned:cleaned=cleaned.replace("  "," ")
+                                                                                                                                                                                                                                                                                return cleaned
+                                                                                                                                                                                                                                                                                    def build_search_url(self,query):
+                                                                                                                                                                                                                                                                                            return self.search_url+requests.utils.quote(query)
+                                                                                                                                                                                                                                                                                                def scrape(self,query):return []
+                                                                                                                                                                                                                                                                                                    def format_result(self,name,price,url,image="",original_price=0,discount="",in_stock=True,rating=0):
+                                                                                                                                                                                                                                                                                                            return {'name':self.clean_name(name),'price':self.clean_price(price) if isinstance(price,str) else float(price or 0),'original_price':self.clean_price(original_price) if isinstance(original_price,str) else float(original_price or 0),'discount':str(discount),'url':str(url),'image':str(image),'site':self.site_name,'site_key':self.site_key,'site_color':self.site_info.get('color','#333333'),'site_logo':self.site_info.get('logo','🏪'),'in_stock':bool(in_stock),'rating':float(rating or 0)}
