@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a472a">
+<link rel="manifest" href="/static/manifest.json">
+<title>{{ query }} — PakPrice</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="header header-results">
+<div class="header-content">
+<a href="/" class="back-btn">Back</a>
+<span class="app-name-small">PakPrice</span>
+<form action="/search" method="GET" class="header-search-form">
+<input type="text" name="q" value="{{ query }}" class="header-search-input">
+<button type="submit" class="header-search-btn">Go</button>
+</form>
+</div>
+</header>
+<main class="main main-results">
+{% if error %}
+<div class="error-card">
+<div class="error-icon">😕</div>
+<h2>Something went wrong</h2>
+<p>{{ error }}</p>
+<a href="/" class="btn-primary">Try Again</a>
+</div>
+{% elif not results %}
+<div class="no-results-card">
+<div class="no-results-icon">🔍</div>
+<h2>No Results Found</h2>
+<p>We could not find <strong>"{{ query }}"</strong> on any site right now.</p>
+<ul><li>Check the spelling</li><li>Try a shorter search term</li><li>Try the model number</li></ul>
+<a href="/" class="btn-primary">Search Again</a>
+</div>
+{% else %}
+<section class="results-header">
+<h2 class="results-title">Results for <span class="query-highlight">"{{ query }}"</span></h2>
+<p class="results-count">{{ category_info.icon }} {{ total_results }} results across {{ stats.sites_count }} sites {% if from_cache %}<span class="cache-badge">Cached</span>{% endif %}</p>
+{% if stats %}
+<div class="stats-grid">
+<div class="stat-card stat-lowest"><div class="stat-label">Lowest Price</div><div class="stat-value">{{ stats.lowest_formatted }}</div></div>
+<div class="stat-card stat-highest"><div class="stat-label">Highest Price</div><div class="stat-value">{{ stats.highest_formatted }}</div></div>
+<div class="stat-card stat-savings"><div class="stat-label">You Can Save</div><div class="stat-value savings-value">{{ stats.savings_formatted }}</div></div>
+</div>
+{% endif %}
+</section>
+<section class="results-section">
+<h3 class="section-heading">Price Comparison</h3>
+<div class="results-list">
+{% for result in results %}
+<div class="result-card {% if loop.index == 1 %}result-best{% endif %}">
+<div class="result-rank">{% if result.medal %}<span class="medal">{{ result.medal }}</span>{% else %}<span class="rank-num">#{{ result.rank }}</span>{% endif %}</div>
+{% if result.image %}<div class="result-image-wrap"><img src="{{ result.image }}" alt="{{ result.name }}" class="result-image" onerror="this.style.display='none'" loading="lazy"></div>{% endif %}
+<div class="result-info">
+<div class="result-site" style="color:{{ result.site_color }}">{{ result.site_logo }} {{ result.site }}</div>
+<h4 class="result-name">{{ result.name }}</h4>
+<div class="result-pricing">
+<span class="result-price">Rs. {{ "{:,.0f}".format(result.price) }}</span>
+{% if result.original_price and result.original_price > result.price %}<span class="result-original-price">Rs. {{ "{:,.0f}".format(result.original_price) }}</span>{% endif %}
+{% if result.discount %}<span class="result-discount">{{ result.discount }}</span>{% endif %}
+</div>
+{% if loop.index == 1 %}<div class="best-deal-badge">Best Price Found!</div>{% endif %}
+</div>
+<div class="result-action">
+{% if result.url %}<a href="{{ result.url }}" target="_blank" rel="noopener" class="buy-btn" style="background:{{ result.site_color }}">Buy Now</a>{% endif %}
+{% if stats.highest_price and result.price < stats.highest_price %}<div class="result-savings">Save Rs. {{ "{:,.0f}".format(stats.highest_price - result.price) }}</div>{% endif %}
+</div>
+</div>
+{% endfor %}
+</div>
+</section>
+{% if alternatives %}
+<section class="alternatives-section">
+<h3 class="section-heading">Alternatives in Same Price Range</h3>
+<div class="alternatives-grid">
+{% for alt in alternatives %}
+<div class="alt-card">
+{% if alt.image %}<img src="{{ alt.image }}" alt="{{ alt.name }}" class="alt-image" onerror="this.style.display='none'" loading="lazy">{% endif %}
+<div class="alt-info">
+<div class="alt-site">{{ alt.site_logo }} {{ alt.site }}</div>
+<h4 class="alt-name">{{ alt.name }}</h4>
+<div class="alt-price">Rs. {{ "{:,.0f}".format(alt.price) }}</div>
+{% if alt.price_diff != 0 %}<div class="alt-diff {% if alt.price_diff < 0 %}alt-cheaper{% else %}alt-costlier{% endif %}">{% if alt.price_diff < 0 %}Rs. {{ "{:,.0f}".format(alt.price_diff|abs) }} cheaper{% else %}Rs. {{ "{:,.0f}".format(alt.price_diff) }} more{% endif %}</div>{% endif %}
+</div>
+{% if alt.url %}<a href="{{ alt.url }}" target="_blank" rel="noopener" class="alt-btn">View</a>{% endif %}
+</div>
+{% endfor %}
+</div>
+</section>
+{% endif %}
+<section class="search-again">
+<a href="/" class="btn-secondary">Search Another Product</a>
+<p class="disclaimer">Always verify the final price on the retailer website before purchasing.</p>
+</section>
+{% endif %}
+</main>
+<footer class="footer"><p>PakPrice — Compare prices across Pakistan's top online stores</p></footer>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
