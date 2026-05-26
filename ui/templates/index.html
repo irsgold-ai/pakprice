@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a472a">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="icon" type="image/png" href="/static/icons/icon-192.png">
+<title>PakPrice — Pakistan Price Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<div class="logo-wrap">
+<div class="logo-icon"><span>🇵🇰</span><span>🏷️</span></div>
+<div class="logo-text">
+<h1 class="app-name">PakPrice</h1>
+<p class="app-tagline">Pakistan's Smartest Price Comparison</p>
+</div>
+</div>
+</div>
+</header>
+<main class="main">
+<section class="search-section">
+<div class="search-card">
+<h2 class="search-heading">Find the Best Price</h2>
+<p class="search-subheading">Search across Daraz, PriceOye, Telemart, Symbios and iShopping</p>
+<form action="/search" method="GET" class="search-form" id="searchForm">
+<div class="search-input-wrap">
+<span class="search-icon">🔍</span>
+<input type="text" name="q" id="searchInput" class="search-input" placeholder="e.g. Samsung Galaxy S25..." autocomplete="off" autofocus required>
+<button type="button" class="clear-btn" id="clearBtn" onclick="clearSearch()">x</button>
+</div>
+<div class="category-filters">
+<p class="filter-label">Filter by category:</p>
+<div class="filter-buttons">
+{% for key, cat in categories.items() %}
+<button type="button" class="filter-btn {% if key == 'all' %}active{% endif %}" data-category="{{ key }}" onclick="setCategory('{{ key }}')">{{ cat.icon }} {{ cat.name }}</button>
+{% endfor %}
+</div>
+<input type="hidden" name="cat" id="categoryInput" value="all">
+</div>
+<button type="submit" class="search-btn" id="searchBtn">
+<span class="btn-text">Search and Compare Prices</span>
+<span class="btn-loading" style="display:none">Searching...</span>
+</button>
+</form>
+</div>
+</section>
+<section class="how-it-works">
+<h3 class="section-title">How It Works</h3>
+<div class="steps-grid">
+<div class="step-card"><div class="step-icon">✍️</div><h4>Type Product</h4><p>Enter any product name</p></div>
+<div class="step-card"><div class="step-icon">🌐</div><h4>We Search</h4><p>We check 5 major stores</p></div>
+<div class="step-card"><div class="step-icon">🏷️</div><h4>Compare</h4><p>Prices ranked cheapest first</p></div>
+<div class="step-card"><div class="step-icon">💰</div><h4>Save Money</h4><p>Buy from the cheapest store</p></div>
+</div>
+</section>
+<section class="sites-section">
+<h3 class="section-title">Sites We Compar
